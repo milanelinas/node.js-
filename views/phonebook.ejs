@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%=title%></title>
+        <script type="text/javascript" src="/../js/jquery-1.10.2.min.js"></script>
+        <link rel="stylesheet" href="/../css/style.css">
+    </head>
+<body>
+<div class="page-data">
+    <form>
+        <table cellpadding="11">
+            <tr>
+                <td class="label">Search (phone number):</td><td>: <input id="the-search" type="text" ></td>
+            </tr>
+        </table>
+        <a class="a-inside" href="javascript:void(0)" onClick="searchPhone()">Delete</a>
+    </form>
+</div>
+<div class="data-table">
+    <table border="1" cellpadding="7" cellspacing="7">
+        <tr>
+            <th width="50px">No</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone Number</th>
+            <th>Action</th>
+        </tr>
+                       
+        <% if(data.length){ 
+                        
+         for(var i = 0;i < data.length;i++) { %>
+         
+        <tr>
+            <td><%=(i+1)%></td>
+            <td><%=data[i].first_name%></td>
+            <td><%=data[i].last_name%></td>
+            <td><%=data[i].phone_number%></td>
+            <td>
+                <a class="a-inside edit" href="/api/phonebook/<%=data[i].id%>">Edit</a>
+               
+                <a class="a-inside delete" href="javascript:void(0)" onClick="searchPhone(<%=data[i].id%>)">Delete</a>
+               
+            </td>
+        </tr>
+    <% }
+    
+     }else{ %>
+         <tr>
+            <td colspan="5">No Data</td>
+         </tr>
+    <% } %>
+                                      
+    </table>
+</div>
+<div class="page-data">
+    
+    <form method="post" action="" id="the-form">
+        <table cellpadding="11">
+        <tr>
+            <td class="label">First Name</td><td>: <input type="text" name="first_name"></td>
+         </tr>
+        <tr>
+            <td class="label">Last Name</td><td>: <input type="text" name="last_name"></td>
+         </tr>
+          <tr>
+            <td class="label">Phone Number</td><td>: <input type="text" name="phon_number"></td>
+         </tr>
+         <tr>
+            <td class="label"></td>
+            <td>
+                &nbsp; <input type="button" value="Save" onClick="savePhone()">
+            </td>
+         </tr>
+        </table>
+    </form>
+</div>
+<div class="page-data">
+     <ul class="err-area"></ul>
+</div>
+
+<script>
+
+    function searchPhone(){
+
+        let search = $("#the-search").val();
+       
+       $.ajax({
+        
+        url:"/api/phonebook/" + search,
+        type:"get",
+        success:function(res){
+            
+            window.location.reload();
+            return false;
+        },
+        error:function(xhr, status, error){
+            
+            console.log(xhr.responseText);
+            var err = '';
+            $.each(JSON.parse(xhr.responseText) , function(i, item) {
+               
+                 err +='<li>'+item.msg+'</li>';
+            });
+            $(".err-area").html(err);    
+            return false;
+        }
+        
+       });
+    }
+
+    function savePhone(){
+       
+       $.ajax({
+        
+        url:"/api/phonebook",
+        type:"post",
+        data:$("#the-form").serialize(),
+        success:function(res){
+            
+            window.location.reload();
+            return false;
+        },
+        error:function(xhr, status, error){
+            
+            console.log(xhr.responseText);
+            var err = '';
+            $.each(JSON.parse(xhr.responseText) , function(i, item) {
+               
+                 err +='<li>'+item.msg+'</li>';
+            });
+            $(".err-area").html(err);    
+            return false;
+        }
+        
+       });
+    }
+    
+    function deletePhone(id){
+    
+        $.ajax({
+            url:"/api/phonebook/" + id,
+            type: 'DELETE',
+            success: function(res) {
+                
+                window.location.reload();
+                return false;
+            },
+            error:function(xhr, status, error){
+            
+                console.log(xhr.responseText);
+                alert("Error deleting");
+                return false;
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
